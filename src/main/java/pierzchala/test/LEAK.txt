@@ -1,0 +1,89 @@
+Jak stworzyć obiekt ByteBuff, żeby zwolnić pamięć !!!!!!!
+
+wątpliwość Jeśli masz wątpliwości lub chcesz uprościć uwalnianie wiadomości, możesz użyć
+!!! ReferenceCountUtil.release ()
+ ReferenceCountUtil.refCnt(text) !!!!
+ Zobacz inne metody !!!
+
+
+Obiekty zliczane przez referencje (Netty) zostają usunięte przez GC, nawet jeżeli licznik referencji jest większy od zera.
+Taki obiekt nie może już zostać wskrzeszony, czyli nie może wrócić do puli obiektów z których pochodzi.
+Powoduje to wyciek pamięci ???? hm
+
+Sprawdzanie wycieków !!!
+Enable advanced leak reporting to find out where the leak occurred.
+To enable advanced leak reporting, specify the JVM option
+!!! '-Dio.netty.leakDetectionLevel=advanced'
+!!! or call ResourceLeakDetector.setLevel()  // w parametrze wpisujemy level z klasy  public enum Level
+
+Uruchom ponownie aplikację za pomocą wspomnianej powyżej opcji JVM, a następnie zobaczysz ostatnie lokalizacje aplikacji, w których uzyskano dostęp do wycieku bufora.
+
+
+Poziomy wykrywania wycieków
+Obecnie istnieją 4 poziomy wykrywania wycieków:
+
+     DISABLED  - całkowicie wyłącza wykrywanie wycieków. Niepolecane.
+     SIMPLE - informuje, czy istnieje przeciek dla 1% buforów. Domyślna.
+     ADVANCED  - informuje, gdzie uzyskano dostęp do wyciekającego bufora dla 1% buforów.
+     PARANOID  - To samo z ADVANCED, z tą różnicą, że dotyczy każdego bufora. Przydatny w fazie automatycznego testowania. Kompilacja może się nie powieść, jeśli wynik kompilacji zawiera „LEAK:”.
+
+Możesz określić poziom wykrywania wycieków jako opcję JVM -Dio.netty.leakDetection.level
+
+java -Dio.netty.leakDetection.level = zaawansowane ...
+
+Najlepsze praktyki pozwalające uniknąć wycieków
+
+     Przeprowadź testy jednostkowe i testy integracyjne na poziomie wykrywania wycieków PARANOID, a także na poziomie SIMPLE.
+     Przetłumacz swoją aplikację przed wdrożeniem do całego klastra na poziomie SIMPLE przez dość długi czas, aby sprawdzić, czy nie ma wycieku.
+     W przypadku wycieku, kanarek ponownie na poziomie ZAAWANSOWANYM, aby uzyskać wskazówki na temat tego, skąd pochodzi wyciek.
+     Nie wdrażaj aplikacji z wyciekiem do całego klastra.
+
+Naprawianie nieszczelności w testach jednostkowych
+
+Bardzo łatwo zapomnieć o zwolnieniu bufora lub komunikatu w teście jednostkowym. Wygeneruje ostrzeżenie o wycieku, ale nie musi to oznaczać, że Twoja aplikacja ma wyciek.
+Zamiast owijać testy jednostkowe blokami try-last w celu zwolnienia wszystkich buforów, możesz użyć metody narzędzia
+!!! ReferenceCountUtil.releaseLater ():
+
+
+//
+Początkowa liczba referencji nowego obiektu zliczonego przez referencje wynosi 1
+
+ByteBuf buf = ctx.alloc().directBuffer();
+
+the reference-counted object - obiekt zliczany przez referencje
+
+Po zwolnieniu obiektu, jego liczba referencji zmiejsza się o 1.
+Jeśli liczba referencyjna osiąga wartość 0, obiekt liczony przez referencję zostaje zwolniony lub zwrócony do puli obiektów, z której pochodzi.
+
+Próba uzyskania dostępu do obiektu zliczanego przez referencje, którego liczba referencyjna wynosi 0, wyzwoli wyjątek IllegalReferenceCountException.
+
+!!!
+Ten kto uzyskuje dostęp do zliczanego obiektu w referencjach jest odpowiedzialny za jego zniszczenie.
+
+Komponent obierający referencje musi zwolnić pamięć.
+
+Jeśli komponent zużywa obiekt zliczony w referencjach i  wie, że nic więcej nie będzie już do niego uzyskiwał
+(tj. Nie przekaże referencji do innego komponentu), powinien go zniszczyć.
+
+
+//
+ByteBuf.duplicate (), ByteBuf.slice () i ByteBuf.order (ByteOrder) tworzą bufor pochodny, który dzieli obszar pamięci bufora nadrzędnego.
+Bufor pochodny nie ma własnej liczby referencji, ale dzieli liczbę referencyjną bufora nadrzędnego.
+
+
+Natomiast ByteBuf.copy () i ByteBuf.readBytes (int) nie są buforami pochodnymi. Zwrócony ByteBuf zostanie przydzielony i będzie musiał zostać zwolniony.
+
+Zauważ, że bufor nadrzędny i jego bufory pochodne dzielą tę samą liczbę referencji, a liczba referencji nie wzrasta, gdy tworzony jest bufor pochodny.
+Dlatego jeśli zamierzasz przekazać bufor pochodny do innego komponentu aplikacji, musisz najpierw wywołać retain ().
+
+
+As explained in the 'Who destroys?' section of this document, if your handler passes the buffer (or any reference-counted object) to the next handler, you don't need to release it:
+Jak wyjaśniono w „Kto niszczy?” w części tego dokumentu, jeśli twój program obsługi przekazuje bufor (lub dowolny obiekt zliczony do referencji) do następnego programu, nie musisz go zwalniać:
+
+
+//////////
+Interfejs ByteBufHolder
+
+Czasami ByteBuf jest zawarty w uchwycie bufora, takim jak DatagramPacket, HttpContent i WebSocketframe. Te typy rozszerzają wspólny interfejs o nazwie ByteBufHolder.
+
+Uchwyt bufora dzieli liczbę referencyjną bufora, który zawiera, podobnie jak bufor pochodny
