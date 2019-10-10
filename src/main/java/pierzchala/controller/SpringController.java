@@ -1,10 +1,11 @@
 package pierzchala.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pierzchala.springbootfirst.SpringbootfirstApplication;
 import pierzchala.springwakcji1.CompactDisc;
 import pierzchala.watek.SimplyRunnableService;
 import pierzchala.watek1.Watek1Runnable;
@@ -13,7 +14,8 @@ import pierzchala.watek2spring.Watek2SpringService;
 
 @RestController
 public class SpringController {
-    private static String[] args = SpringbootfirstApplication.getArgs();
+
+    private Logger LOGGER = LoggerFactory.getLogger(SpringController.class);
 
     @Autowired
     private SimplyRunnableService simplyRunnableService;
@@ -33,12 +35,10 @@ public class SpringController {
     }
 
 
-
     @RequestMapping("/super")
     public String getThird() {
         return "Spring";
     }
-
 
 
     @RequestMapping("/header")
@@ -85,11 +85,26 @@ public class SpringController {
     }
 
     @RequestMapping("/bean")
-    public ResponseEntity<String> bean(){
+    public ResponseEntity<String> bean() {
 
         String className = compactDisc.getClass().getName();
 
         return new ResponseEntity<>(className, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/long")
+    String longJob() throws InterruptedException {
+        LOGGER.info("Start");
+        Thread.sleep(29000);
+        LOGGER.info("Done");
+        return "Done";
+    }
+    @GetMapping("/veryLong")
+    String veryLongJob() throws InterruptedException {
+        LOGGER.info("Start");
+        Thread.sleep(50_000);
+        LOGGER.info("Done");
+        return "Done";
     }
 }
