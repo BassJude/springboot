@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
@@ -54,14 +55,19 @@ public class Selenium1 {
         driver.findElement(By.cssSelector("#customer_firstname")).sendKeys("Adam");
         driver.findElement(By.cssSelector("#customer_lastname")).sendKeys("Kaka");
 //        driver.findElement(By.cssSelector("#email")).sendKeys("bass@bass.pl");
-        // klikamy i spowdziewamy sie bledu walidacji
-        driver.findElement(By.cssSelector("#submitAccount")).click();
 
-        Thread.sleep(5000);
-        // czy jest wyswietlony blad
-        boolean idAlertDisplayed = driver.findElement(By.className("alert")).isDisplayed();
-        Assert.assertTrue(idAlertDisplayed);
+      ////////////////
+//        // klikamy i spowdziewamy sie bledu walidacji
+//        driver.findElement(By.cssSelector("#submitAccount")).click();
+//
+//        Thread.sleep(5000);
+//        // czy jest wyswietlony blad
+//        boolean idAlertDisplayed = driver.findElement(By.className("alert")).isDisplayed();
+//        Assert.assertTrue(idAlertDisplayed);
+//////////////////////////////////
 
+        //select
+        new Select(driver.findElement(By.cssSelector("#days"))).selectByValue("4");
 
     }
 

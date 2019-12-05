@@ -2,7 +2,7 @@ package pierzchala.selenium.pages;
 
 import org.openqa.selenium.support.FindBy;
 
-public class HomePage {
+public class HomePage extends BasePages{
 
     @FindBy(id="cos_tam")
     private String name;
