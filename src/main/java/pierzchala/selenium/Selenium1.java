@@ -1,11 +1,13 @@
 package pierzchala.selenium;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -24,11 +26,12 @@ public class Selenium1 {
 
     @Before
     public void setUp() {
-        File file = new File("E:\\geckodriver.exe");
-        System.out.println(file.exists());
-
-        System.setProperty("webdriver.gecko.driver", "E:\\geckodriver.exe");
-        driver = new FirefoxDriver();
+//        File file = new File("E:\\geckodriver.exe");
+//        System.out.println(file.exists());
+//
+//        System.setProperty("webdriver.gecko.driver", "E:\\geckodriver.exe");
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
 
         driver.get(url);
         // czekamy aż strona się załaduje, uzywamy raz globalnie
