@@ -2,9 +2,8 @@ package pierzchala.selenium;
 
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pierzchala.selenium.pages.WebDriverSingleton;
+import pierzchala.selenium.pages.WebDriverProvider;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,10 +15,10 @@ public class Selenium2 {
 
     @Before
     public void setUp() {
-        driver = WebDriverSingleton.getInstance();
+        driver = WebDriverProvider.getInstance();
 
-        System.setProperty("webdriver.gecko.driver", "E:\\geckodriver.exe");
-        driver = new FirefoxDriver();
+//        System.setProperty("webdriver.gecko.driver", "E:\\geckodriver.exe");
+//        driver = new FirefoxDriver();
 
         driver.get(url);
         // czekamy aż strona się załaduje, uzywamy raz globalnie

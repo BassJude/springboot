@@ -1,19 +1,15 @@
 package pierzchala.selenium;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pierzchala.selenium.pages.WebDriverProvider;
 
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 public class Selenium1 {
@@ -30,8 +26,8 @@ public class Selenium1 {
 //        System.out.println(file.exists());
 //
 //        System.setProperty("webdriver.gecko.driver", "E:\\geckodriver.exe");
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
+
+        driver = WebDriverProvider.getInstance();
 
         driver.get(url);
         // czekamy aż strona się załaduje, uzywamy raz globalnie
@@ -59,7 +55,7 @@ public class Selenium1 {
         driver.findElement(By.cssSelector("#customer_lastname")).sendKeys("Kaka");
 //        driver.findElement(By.cssSelector("#email")).sendKeys("bass@bass.pl");
 
-      ////////////////
+        ////////////////
 //        // klikamy i spowdziewamy sie bledu walidacji
 //        driver.findElement(By.cssSelector("#submitAccount")).click();
 //
@@ -71,6 +67,7 @@ public class Selenium1 {
 
         //select
         new Select(driver.findElement(By.cssSelector("#days"))).selectByValue("4");
+        driver.quit();
 
     }
 
@@ -79,7 +76,6 @@ public class Selenium1 {
 //        driver.close();
 //        driver.quit();
 //    }
-
 
 
     public void test2() {
