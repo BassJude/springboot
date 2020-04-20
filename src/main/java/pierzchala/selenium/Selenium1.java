@@ -38,6 +38,7 @@ public class Selenium1 {
 
         wait = new WebDriverWait(driver, 10);
 
+
     }
 
 

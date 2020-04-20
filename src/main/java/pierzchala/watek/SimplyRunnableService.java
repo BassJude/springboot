@@ -46,6 +46,6 @@ public class SimplyRunnableService implements Lifecycle {
 
     @Override
     public boolean isRunning() {
-        return threadPool.isTerminated();
+        return !threadPool.isTerminated();
     }
 }
